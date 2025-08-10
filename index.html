@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mitsubishi Price Search</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background-color: #03c75a;
+        padding: 10px;
+        text-align: center;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .search-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 10px;
+    }
+    .search-box {
+        display: flex;
+        align-items: center;
+        border: 2px solid #03c75a;
+        border-radius: 30px;
+        padding: 5px 15px;
+        background-color: white;
+        transition: box-shadow 0.3s ease;
+    }
+    .search-box:focus-within {
+        box-shadow: 0 0 10px rgba(3, 199, 90, 0.4);
+    }
+    .search-box input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        padding: 10px;
+    }
+    .search-icon {
+        color: #03c75a;
+        font-size: 20px;
+        margin-left: 10px;
+        cursor: pointer;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background-color: white;
+    }
+    th, td {
+        border-bottom: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        font-size: 14px;
+    }
+    th {
+        background-color: #f8f8f8;
+    }
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+    .no-results {
+        text-align: center;
+        padding: 15px;
+        color: #999;
+    }
+    mark {
+        background-color: yellow;
+        color: black;
+        font-weight: bold;
+        padding: 0;
+    }
+    @media (max-width: 600px) {
+        th, td {
+            font-size: 12px;
+            padding: 8px;
+        }
+        .search-box input {
+            font-size: 14px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<header>Mitsubishi Price List</header>
+
+<div class="search-container">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="예) MR-J4-20B">
+        <span class="search-icon">🔍</span>
+    </div>
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>규격</th>
+                <th>가격</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    let priceData = [];
+
+    // JSON 불러오기
+    fetch('mitsubishi_price_list.json')
+        .then(response => response.json())
+        .then(data => {
+            priceData = data;
+        });
+
+    function highlightText(text, keyword) {
+        if (!keyword) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    function renderResults(filtered, keyword) {
+        const resultsBody = document.querySelector('#resultsTable tbody');
+        resultsBody.innerHTML = '';
+
+        if (filtered.length === 0) {
+            resultsBody.innerHTML = `<tr><td colspan="2" class="no-results">검색 결과가 없습니다</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(item => {
+            const row = `<tr>
+                <td>${highlightText(item['규격'], keyword)}</td>
+                <td>${Number(item['가격']).toLocaleString()} 원</td>
+            </tr>`;
+            resultsBody.innerHTML += row;
+        });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const keyword = this.value.trim();
+        if (keyword.length === 0) {
+            renderResults([], keyword);
+            return;
+        }
+
+        const filtered = priceData.filter(item =>
+            item['규격'].toLowerCase().includes(keyword.toLowerCase())
+        );
+
+        renderResults(filtered, keyword);
+    });
+</script>
+
+</body>
+</html>
