@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             allProducts = await response.json();
             // Do not display all products initially, show a prompt
-            resultsTableBody.innerHTML = `<tr><td colspan="2" class="text-center">검색어를 입력하고 검색 버튼을 누르세요.</td></tr>`;
+            resultsTableBody.innerHTML = `<tr><td colspan="2" class="text-start">검색어를 입력하고 검색 버튼을 누르세요.</td></tr>`;
         } catch (error) {
             console.error('Error fetching product data:', error);
             resultsTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-danger">데이터를 불러오는 데 실패했습니다. (${error.message})</td></tr>`;
